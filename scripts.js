@@ -4,6 +4,7 @@ let user = {
 
 function askName() {
     user.name = prompt("Qual o seu nome")
+    console.log(user)
     let promisse = axios.post('https://mock-api.driven.com.br/api/v6/uol/participants', user)
     promisse.then(nomeSucesso)
     promisse.catch(nomeFalha)
@@ -11,9 +12,13 @@ function askName() {
 }
 
 function nomeSucesso(sucesso) {
-    if (sucesso.status === 200)
-        setInterval(checkLogin, 3000)
-        setInterval(buscaMensagens, 1000)
+    console.log("entra no if")
+    if (sucesso.status === 200){
+        setInterval(checkLogin, 5000)
+        buscaMensagens()
+        setInterval(buscaMensagens, 3000)
+    console.log("terminou if")
+    }
 
 }
 
@@ -24,38 +29,41 @@ function checkLogin() {
 }
 
 function buscaMensagens() {
+    console.log("começou buscamensagem")
     let promisse = axios.get("https://mock-api.driven.com.br/api/v6/uol/messages")
     promisse.then(montaMensagem)
 }
 
 function montaMensagem(response) {
-
-    if (response.data[response.data.length - 1].type === "message") {
-        document.querySelector(".messages").innerHTML += `<div class="message"> 
-        (${response.data[response.data.length - 1].time})   
-        ${response.data[response.data.length - 1].from}  para 
-        ${response.data[response.data.length - 1].to} :
-        ${response.data[response.data.length - 1].text}
-        </div>`
-    } else if (response.data[response.data.length - 1].type === "status") {
-        document.querySelector(".messages").innerHTML += `<div class="message log"> 
-            (${response.data[response.data.length - 1].time}) ` + `   ` + `
-            ${response.data[response.data.length - 1].from} ` + ` ` + `
-            ${response.data[response.data.length - 1].text} ` + ` ` + `
+    let espaço = "   ."
+    console.log("terminou buscamensagem")
+    document.querySelector(".messages").innerHTML = "";
+    for(let i = 0; i < response.data.length ; i++){
+        if (response.data[i].type === "message") {
+            document.querySelector(".messages").innerHTML += `<div class="message"> 
+            <span class="time">(${response.data[i].time}) </span>\xa0
+            <span class="from">${response.data[i].from} </span>\xa0 para\xa0
+            <span class="to">${response.data[i].to}\xa0 </span> : \xa0
+            <span class="text">${response.data[i].text} </span>\xa0
             </div>`
-    }else if (response.data[response.data.length - 1].type === "private_message" && user.name === response.data[response.data.length - 1].to) {
-        document.querySelector(".messages").innerHTML += `<div class="message privada"> 
-        ${response.data[response.data.length - 1].time}  
-        ${response.data[response.data.length - 1].from} reservadamente para 
-        ${response.data[response.data.length - 1].to} :
-        ${response.data[response.data.length - 1].text}`
-    };
-    
-    removeRepetido()
+        } else if (response.data[i].type === "status") {
+            document.querySelector(".messages").innerHTML += `<div class="message log"> 
+            <span class="time"> (${response.data[i].time}) </span>\xa0
+            <span class="from">${response.data[i].from} </span>\xa0
+            <span class="text"> ${response.data[i].text} </span>\xa0
+                </div>`
+        }else if (response.data[i].type === "private_message" && user.name === response.data[i].to) {
+            document.querySelector(".messages").innerHTML += `<div class="message privada"> 
+            <span class="time">${response.data[i].time} </span>\xa0 
+            <span class="from">${response.data[i].from} </span>\xa0 reservadamente\xa0para\xa0 
+            <span class="to">${response.data[i].to} </span> :\xa0
+            <span class="text">${response.data[i].text} </span>` 
+        };
+
+    }
     document.querySelector(".messages").lastChild.scrollIntoView()
+ }
     
-   
-}
 
 
 function nomeFalha(falha) {
@@ -75,28 +83,22 @@ function enviaMensagem() {
 	text: texto,
 	type: "message"
     }
-    let deu = false
     let promisse = axios.post("https://mock-api.driven.com.br/api/v6/uol/messages", mensagem)
-    function apagaCampo(){
+    console.log("mesnsagem enviada")
+    function apagaCampo(response){
+        console.log(response)
         document.querySelector("input").value = ""
-        deu = true
+        buscaMensagens()
     }
-    promisse.then(apagaCampo())
-   
-    if(!deu)
-    promisse.catch(window.location.reload())
-    
+    promisse.then(apagaCampo)
+    promisse.catch(erronoenvio)
+    function erronoenvio(response){
+        window.location.reload()
     }
 
-function removeRepetido() {
-    let messages = document.querySelectorAll(".message")
-    let message = messages[messages.length - 1]
-    if(messages.length > 1){
-    if (messages[messages.length - 1].innerHTML === messages[messages.length - 2].innerHTML) {
-        message.parentElement.removeChild(message)
-    }
+
 }
-}
+
 
 function pressEnter(){
     let inputfield = document.getElementById("inputField")
@@ -105,5 +107,6 @@ function pressEnter(){
         document.getElementById("btnEnvia").click() 
      })
 }
+
     askName()
     pressEnter()
