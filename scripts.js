@@ -4,7 +4,6 @@ let user = {
 
 function askName() {
     user.name = prompt("Qual o seu nome")
-    console.log(user)
     let promisse = axios.post('https://mock-api.driven.com.br/api/v6/uol/participants', user)
     promisse.then(nomeSucesso)
     promisse.catch(nomeFalha)
@@ -12,12 +11,12 @@ function askName() {
 }
 
 function nomeSucesso(sucesso) {
-    console.log("entra no if")
+
     if (sucesso.status === 200){
         setInterval(checkLogin, 5000)
         buscaMensagens()
         setInterval(buscaMensagens, 3000)
-    console.log("terminou if")
+
     }
 
 }
@@ -29,14 +28,13 @@ function checkLogin() {
 }
 
 function buscaMensagens() {
-    console.log("começou buscamensagem")
+
     let promisse = axios.get("https://mock-api.driven.com.br/api/v6/uol/messages")
     promisse.then(montaMensagem)
 }
 
 function montaMensagem(response) {
-    let espaço = "   ."
-    console.log("terminou buscamensagem")
+
     document.querySelector(".messages").innerHTML = "";
     for(let i = 0; i < response.data.length ; i++){
         if (response.data[i].type === "message") {
@@ -84,9 +82,9 @@ function enviaMensagem() {
 	type: "message"
     }
     let promisse = axios.post("https://mock-api.driven.com.br/api/v6/uol/messages", mensagem)
-    console.log("mesnsagem enviada")
+
     function apagaCampo(response){
-        console.log(response)
+
         document.querySelector("input").value = ""
         buscaMensagens()
     }
