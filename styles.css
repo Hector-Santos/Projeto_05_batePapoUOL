@@ -1,3 +1,7 @@
+*{
+    font-family: 'Roboto', sans-serif;
+}
+
 body{
     width: auto;
     background-color: #E5E5E5;
@@ -75,7 +79,15 @@ footer input{
     min-height: 40px;
     height: auto;
     margin-top: 4px;
+    font-family: 'Roboto', sans-serif;
+}
 
+.message h1{
+    color: grey;
+}
+
+.message h2{
+    font-weight: bold;
 }
 
 .log{
